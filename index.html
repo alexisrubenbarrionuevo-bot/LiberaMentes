@@ -202,6 +202,17 @@ footer{border-top:1px solid var(--line);margin-top:70px;background:#fff}
 .rd-top>button{background:none;border:0;font-size:18px;cursor:pointer;color:#94a3b8}
 .rd-hearts{font-size:12px;letter-spacing:1px;white-space:nowrap}
 .rd-q{font-size:19px;font-weight:800;margin:18px 0 12px}
+.rd-teach{border:2px solid #d8e6ff;background:linear-gradient(180deg,#f6f9ff,#eef4ff);border-radius:16px;padding:16px;margin:14px 0 6px;text-align:left}
+.rd-teach h4{margin:0 0 10px;font-size:20px}
+.rd-side{border-radius:12px;padding:12px;margin:8px 0;background:#fff;border:1px solid var(--line)}
+.rd-side b{display:block;margin-bottom:4px}
+.rd-side.up{border-left:6px solid var(--green)}
+.rd-side.down{border-left:6px solid var(--red)}
+.rd-side p{margin:0;font-size:14.5px;line-height:1.6}
+.rd-phase{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.06em;border-radius:999px;padding:4px 10px;margin-bottom:2px}
+.rd-phase.learn{background:#eef2ff;color:#1e3fd6}
+.rd-phase.practice{background:#e7f7ec;color:#14532d}
+.rd-phase.eval{background:#fff3d6;color:#8a5a00;border:1px solid #ffe1a1}
 .rd-opt{display:block;width:100%;text-align:left;border:2px solid var(--line);border-radius:12px;padding:12px;font-size:15px;font-weight:600;background:#fff;cursor:pointer;margin:8px 0;color:var(--ink);font-family:inherit}
 .rd-opt.sel{border-color:var(--blue);background:var(--blue-soft)}
 .rd-opt.ok{border-color:var(--green);background:var(--green-bg)}
@@ -332,91 +343,17 @@ img{max-width:100%;height:auto}
 </style>
 
 <header class="topbar"><div class="topbar-in">
-  <a class="logo" href="#top">LiberaMentes</a>
-  <nav class="navlinks"><a href="#como">Cómo funciona</a><a href="#funciones">Funciones</a><a href="#demo">Mi estudio</a><a href="#ruta">Ruta</a><a href="#faq">Ayuda</a></nav>
+  <a class="logo" href="#demo">LiberaMentes</a>
+  <nav class="navlinks"><a href="#demo">Mi estudio</a><a href="#ruta">Ruta</a><a href="#faq">Ayuda</a></nav>
   <div class="topright"><span class="lang">🌐 Español</span><button class="pf-chip" id="pfChip" hidden></button><a href="#demo" class="btn btn-primary btn-sm">Estudiar ahora</a><button class="btn btn-ghost btn-sm" id="regBtn">Registrarme</button></div>
 </div></header>
 <div class="viewtabs" id="viewTabs"><div class="viewtabs-in">
-  <button data-view="inicio" class="active">🏠 Inicio</button>
-  <button data-view="estudio">📚 Mi estudio</button>
+  <button data-view="estudio" class="active">📚 Mi estudio</button>
   <button data-view="ruta">🗺️ Ruta de niveles</button>
   <button data-view="ayuda">❓ Ayuda</button>
   <button id="pfTabBtn">👤 Perfil</button>
 </div></div>
 
-<div id="top" class="hero">
-  <div class="float-chip fc1">✍️</div><div class="float-chip fc2">⚛️</div>
-  <div class="float-chip fc3">🧬</div><div class="float-chip fc4">🧪</div>
-  <div class="pf-greet" id="pfGreet" hidden></div>
-  <h1>Aprende cualquier cosa,<br><span class="u">10 veces más rápido</span></h1>
-  <p class="sub">Convierte tus materiales de estudio en notas, cuestionarios, tarjetas, mapas mentales, respuestas y un plan de estudio personalizado, todo con citas de tus fuentes.</p>
-  <div class="hero-cta"><a href="#demo" class="btn btn-primary">Crear mi plan ahora</a><a href="#como" class="btn btn-ghost">Ver cómo funciona ↓</a></div>
-  <div class="micro">100% gratis · En español · Sube PDF o TXT, o pega tu texto · Sin cuentas ni tarjetas</div>
-  <div class="pilltabs" id="heroTabs">
-    <button>📋 Plan de estudio</button><button class="active">💬 Chatea con tus notas</button><button>🧠 Mapas mentales</button><button>❓ Cuestionarios</button><button>🗂️ Tarjetas de estudio</button>
-  </div>
-</div>
-
-<div class="mockwrap"><div class="mock">
-  <div class="mock-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span style="margin-left:8px">📄 genetics_and_inheritance.pdf · 10 / 14 · 100%</span><span style="margin-left:auto">🔍 Auto ▾ · 💬 Chat · ❓ Quiz · 📝 Notes · 🗂️ Cards</span></div>
-  <div class="mock-grid">
-    <div class="mock-left">
-      <div class="fileline">📁 Files & Folders (7) · <b>genetics_and_inheritance.pdf</b></div>
-      <div class="pdfpage"><h4>Proteínas de la replicación del ADN</h4>
-      <table style="width:100%;font-size:11.5px;border-collapse:collapse"><tr><th style="text-align:left;border-bottom:1px solid #eee">Proteína</th><th style="text-align:left;border-bottom:1px solid #eee">Función</th></tr>
-      <tr><td>Helicasa</td><td>Rompe, desenrolla y reune las hebras <span class="cite">p.10</span></td></tr>
-      <tr><td>Primasa</td><td>Sintetiza un cebador de ARN en el extremo 5′ <span class="cite">p.10</span></td></tr>
-      <tr><td>ADN polimerasa III</td><td>Añade nucleótidos al cebador <span class="cite">p.10</span></td></tr>
-      <tr><td>Ligasa</td><td>Une fragmentos de Okazaki <span class="cite">p.10</span></td></tr></table>
-      <div class="chatbubble"><b>❓ Pregunta 1:</b> ¿Cuál describe la relación entre tamaño de antena y frecuencia?<br><br><span style="background:#e7f7ec;border:1px solid #9ed9ae;border-radius:8px;padding:4px 8px">B. Inversamente proporcional: a mayor frecuencia, antenas más pequeñas.</span></div>
-      </div>
-    </div>
-    <div class="mock-right">
-      <b style="font-size:14px">¿Cuál describe la relación entre el tamaño físico de una antena y la frecuencia de la onda?</b>
-      <div class="quizopt q-bad"><b>A.</b> Directamente proporcional: a mayor frecuencia, antenas más grandes.</div>
-      <div class="quizopt q-good"><b>B.</b> Inversamente proporcional: a mayor frecuencia, antenas más pequeñas.</div>
-      <div class="quizopt"><b>C.</b> Independiente de la frecuencia, solo depende de la potencia.</div>
-      <div class="quizopt"><b>D.</b> Determinada solo por la modulación, no por la frecuencia.</div>
-      <div class="q-explain"><span style="color:var(--red);font-weight:800">✕ Incorrecto</span><br><b>Respuesta correcta: B.</b><br>El tamaño es inversamente proporcional a la frecuencia. Al aumentar la frecuencia (y disminuir la longitud de onda), el tamaño físico requerido se hace más pequeño. <span class="cite">Página 12</span></div>
-    </div>
-  </div>
-</div></div>
-
-<div id="como" class="steps">
-  <div class="rail" id="rail">
-    <div class="rail-items" style="display:flex;flex-direction:column">
-      <div class="step-item active" data-s="0"><div class="step-n">1</div><div class="step-txt"><small>SUBIR</small><div>Graba y sube tus materiales</div></div></div><div class="step-line"></div>
-      <div class="step-item" data-s="1"><div class="step-n">2</div><div class="step-txt"><small>PLANIFICAR</small><div>Planes personalizados</div></div></div><div class="step-line"></div>
-      <div class="step-item" data-s="2"><div class="step-n">3</div><div class="step-txt"><small>COMPRENDER</small><div>Profundiza en cada concepto</div></div></div><div class="step-line"></div>
-      <div class="step-item" data-s="3"><div class="step-n">4</div><div class="step-txt"><small>DOMINA</small><div>Pon a prueba tu comprensión</div></div></div><div class="step-line"></div>
-      <div class="step-item" data-s="4"><div class="step-n">5</div><div class="step-txt"><small>MIDE</small><div>Monitorea tu progreso</div></div></div>
-    </div>
-  </div>
-  <div>
-    <div class="step-block"><div class="k">01 · SUBIR</div><h2>Graba y sube tus materiales</h2><p>Toma clases en tiempo real o sube documentos, libros de texto y artículos: todo se transforma en materiales de estudio interactivos con IA que puedes buscar con facilidad.</p>
-      <div class="blueframe"><div class="innercard"><div class="uploadbox"><div style="font-size:42px">🐦📚</div><h3 style="margin:10px 0">Sube tus archivos y<br>mira tu plan cobrar vida</h3><div><a href="#demo" style="color:var(--blue);font-weight:800">Haz clic para subir</a> o arrastra y suelta archivos</div><div class="typepills"><span>📊 PowerPoints</span><span>📄 Documentos PDF</span><span>🎧 Audios</span><span>🌐 YouTube o enlace web</span><span>📝 Pegar notas o texto</span></div></div></div></div>
-    </div>
-    <div class="step-block"><div class="k">02 · PLANIFICAR</div><h2>Planes de estudio personalizados y conceptos.</h2><p>Obtén un plan de estudio personalizado a partir de tus materiales, con temas complejos divididos en conceptos claros y fáciles de asimilar que puedes dominar paso a paso.</p>
-      <div class="blueframe"><div class="innercard"><div style="background:#4a90ff;color:#fff;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700">CHAPTER 1 · Fundamentos de Psicología y Método Científico &nbsp; 🏆 ¡Sigue así! 2/771</div><div class="split-mobile" style="display:flex;gap:14px;margin-top:14px"><div style="flex:1;text-align:center;color:#94a3b8">●<br>📖<br><br>📖<br><br>📖</div><div style="flex:1.4;background:#f8faff;border:1px solid var(--line);border-radius:12px;padding:12px;font-size:12.5px"><b>Esta semana ›</b><br>▸ El impacto de la investigación científica<br>· Observación sistemática<br>· Hipótesis científica<br>· Triangulación y medición<br>· Ciencia psicológica aplicada<br>· Ética, consentimiento y privacidad</div></div></div></div>
-    </div>
-    <div class="step-block"><div class="k">03 · COMPRENDER</div><h2>Profundiza en cada concepto</h2><p>Cada concepto se divide en lecciones breves con explicaciones claras, haciendo que hasta los temas más difíciles sean fáciles de entender.</p>
-      <div class="blueframe"><div class="innercard"><div style="font-size:12px;color:#667085">2/5 · <b>Éxito reproductivo vs. éxito de supervivencia</b></div><div class="progress" style="margin:8px 0"><i style="width:40%"></i></div><div style="background:#fff7ed;border-radius:12px;padding:12px;font-size:13px">🟠 <b>Por qué importa</b><br>Si vives 100 años pero no tienes hijos, desde la evolución, has fallado. ¿Por qué?</div><div style="background:#fff1f2;border-radius:12px;padding:12px;font-size:13px;margin-top:10px">🔴 <b>Definición</b><br><b>Éxito reproductivo vs. supervivencia</b><br>La evolución se rige por el éxito reproductivo diferencial, no solo por sobrevivir. Sobrevivir solo sirve si permite reproducirse.</div></div></div>
-    </div>
-    <div class="step-block"><div class="k">04 · DOMINA</div><h2>Pon a prueba tu comprensión antes de avanzar.</h2><p>Evalúa de inmediato cuánto comprendiste sobre el concepto antes de continuar, con un tutor de IA listo para ayudarte cuando tengas dudas.</p>
-      <div class="blueframe"><div class="innercard"><div class="mock-grid" style="min-height:0"><div><div style="font-size:12px">‹ Volver · Pregunta 1 de 5 · <span style="color:var(--green)">0 correctas</span></div><p style="font-size:13px"><b>Considera dos ancestros: A vive 80 años sin hijos, B vive 30 años y tiene 5 hijos que sobreviven. ¿Quién tiene más éxito evolutivo?</b></p><div class="quizopt" style="font-size:12.5px"><b>A.</b> A, por longevidad superior.</div><div class="quizopt q-good" style="font-size:12.5px"><b>B.</b> B, porque el éxito reproductivo, no la supervivencia, mueve la evolución.</div></div><div style="background:#f8faff;border-radius:12px;padding:12px;font-size:12.5px"><b>Desglosando la pregunta 🚀</b><br>Vamos paso a paso, con calma.<br><br>🧲 <b>La idea clave</b><br>Pregúntate: ¿qué significa realmente “éxito evolutivo”?</div></div></div></div>
-    </div>
-    <div class="step-block"><div class="k">05 · MIDE</div><h2>Monitorea tu progreso y estadísticas.</h2><p>Monitorea tu aprendizaje con estadísticas detalladas: mira qué has dominado, qué necesitas reforzar y mantén el rumbo para alcanzar tus metas.</p>
-      <div class="blueframe"><div class="innercard"><div style="display:flex;justify-content:space-between;font-size:13px"><span>🟢 <b>Parcial</b> · 27 mar 2026 · 2/37 conceptos</span><span>9d restantes · Meta: A</span></div><div class="progress" style="margin:12px 0"><i style="width:12%"></i></div><div style="font-size:13px">⭐⭐☆☆ · <b>Definición formal de Machine Learning</b> — 47%<br>⭐⭐☆☆ · <b>ML vs. programación tradicional</b> — 44%<br>☆☆☆☆ · <b>Aprendizaje semi-supervisado</b> — 0%</div></div></div>
-    </div>
-  </div>
-</div>
-
-<div id="funciones" class="features">
-  <div class="feat-head"><h2>Todo lo que necesitas<br>para estudiar de forma más inteligente.</h2><p>Toma clases, divide conceptos y recuerda más, todo a partir de tus propios materiales.</p></div>
-  <div class="feat-row"><div class="mini">🗺️ <b>Mapa mental interactivo</b><div class="mindmap" style="margin-top:12px"><span class="mind-central">Redes inalámbricas</span><span class="mind-branch"><b>Frecuencia</b>λ = c / f</span><span class="mind-branch"><b>Antena</b>tamaño ∝ 1/f</span><span class="mind-branch"><b>Ganancia</b>G = 4πAe/λ²</span></div><div class="chatbubble">Comprende el panorama general de un vistazo.</div></div><div><h3>Mapas mentales visuales</h3><p>Descubre cómo se conectan las ideas con mapas mentales que te ayudan a entender el panorama general.</p></div></div>
-  <div class="feat-row"><div><h3>Tarjetas con repetición espaciada</h3><p>Estudia hasta un 20% más rápido que con herramientas tradicionales como Anki. Nuestro algoritmo va más allá de un calendario fijo para optimizar el momento exacto en que repasas, para que recuerdes más en menos tiempo.</p></div><div class="mini">🗂️ <b>Support Vector Machines (SVM)</b><div class="quizopt" style="font-size:12.5px"><b>Pregunta:</b> ¿Cómo maneja SVM datos no separables linealmente?<br><b>Respuesta:</b> Con truco kernel: proyecta a un espacio de mayor dimensión.</div><div class="quizopt" style="font-size:12.5px"><b>Pregunta:</b> ¿Qué significa w·x+b=0?<br><b>Respuesta:</b> Es la ecuación del hiperplano separador.</div></div></div>
-  <div class="feat-row"><div class="mini">📋 <b>Tu plan semanal</b><div class="progress" style="margin:10px 0"><i style="width:34%"></i></div><div style="font-size:13px;line-height:2">✅ Observación sistemática<br>✅ Hipótesis científica<br>🔵 Cultura de la ciencia <i>(hoy)</i><br>⬜ Triangulación y medición<br>⬜ Ética y privacidad</div></div><div><h3>Planes de estudio personalizados</h3><p>Obtén un plan de estudio personalizado basado en tus materiales, para que siempre sepas en qué enfocarte.</p></div></div>
-</div>
 
 <div id="demo" class="appsec">
   <div class="apphead"><div class="k" style="color:var(--blue);font-weight:800;font-size:13px;letter-spacing:.06em">TU ESPACIO DE ESTUDIO · 100% GRATIS</div><h2>Pega tu material y genera tu plan ahora</h2><p>Sube un PDF o TXT, pega tus apuntes, o prueba con un ejemplo. Genera plan, notas, quiz, tarjetas, mapa y chat — con citas de tu texto. Todo gratis e ilimitado.</p></div>
@@ -504,7 +441,7 @@ img{max-width:100%;height:auto}
 <details><summary>¿Mis datos son privados?</summary><p style="color:#475467">Tu texto se guarda automáticamente solo en este navegador. Puedes exportarlo o borrarlo con “Exportar copia” y “Borrar todo” en Mi perfil. Solo se envía algo a Google Drive cuando pulsas los botones ⤴ de Drive, y la IA solo recibe el texto necesario para generar tu respuesta.</p></details>
 </div>
 
-<footer><div class="foot-in"><b style="color:var(--blue)">LiberaMentes</b><span>Gratis para tu estudio personal · Funciones · Cómo funciona · Mi estudio</span><span style="margin-left:auto">© 2026 LiberaMentes · Hecho para estudiar mejor</span></div></footer>
+<footer><div class="foot-in"><b style="color:var(--blue)">LiberaMentes</b><span>Gratis para tu estudio personal · Mi estudio · Ruta · Ayuda</span><span style="margin-left:auto">© 2026 LiberaMentes · Hecho para estudiar mejor</span></div></footer>
 <div class="toast" id="toastEl"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -736,8 +673,7 @@ function loadingHTML(msg){return `<div class="loading"><div class="spinner"></di
 function updateStats(){try{const p=JSON.parse(localStorage.getItem('ak_stats')||'{}');$('#stQuiz').textContent=p.lastQuiz!=null?p.lastQuiz+'%':'–';$('#stCards').textContent=p.cards||0;const done=planChecks.filter(Boolean).length,tot=planChecks.length||1;const pct=Math.round(done/tot*100);$('#stPlan').textContent=p.planPct!=null?p.planPct+'%':(tot>1?pct+'%':'0%');$('#globalBar').style.width=((p.planPct||pct||0))+'%';}catch(e){}}
 function saveStats(patch){try{const p=JSON.parse(localStorage.getItem('ak_stats')||'{}');Object.assign(p,patch);localStorage.setItem('ak_stats',JSON.stringify(p));updateStats();}catch(e){}}
 
-// tabs (el comportamiento con caché está definido junto a lmRestoreTab)
-$$('#heroTabs button').forEach(b=>b.onclick=()=>{$$('#heroTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('demo').scrollIntoView({behavior:'smooth'});});
+
 
 // samples + counters
 $$('[data-sample]').forEach(b=>b.onclick=()=>{$('#materialInput').value=SAMPLES[b.dataset.sample];updCount();lmPersistMaterialNow();toast('Ejemplo cargado: '+b.textContent.trim());});
@@ -1033,6 +969,47 @@ function rdNormExFlex(e){
   if(!a.length) return null;
   return {type:'blank',q:q,answers:a,hint:lmStr(lmPick(e,['hint','pista'])).slice(0,160),explain:exp};
 }
+/* La lección primero ENSEÑA: carta de Tarot (al derecho/invertida) o concepto explicado. */
+function rdNormLearnFlex(l){
+  if(!l||typeof l!=='object') return null;
+  const card=lmPick(l,['card','carta','tarot']);
+  if(card&&typeof card==='object'){
+    const name=lmStr(lmPick(card,['name','nombre','titulo','title','carta'])).slice(0,60);
+    const upright=lmStr(lmPick(card,['upright','derecho','alDerecho','right','up'])).slice(0,500);
+    const reversed=lmStr(lmPick(card,['reversed','invertida','invertido','alReves','reves','down'])).slice(0,500);
+    if(name&&upright&&reversed) return {kind:'card',name:name,upright:upright,reversed:reversed};
+    return null;
+  }
+  const concept=lmStr(lmPick(l,['teach','concept','concepto','tema','idea','enseñanza','ensenanza'])).slice(0,80);
+  const explanation=lmStr(lmPick(l,['explanation','explicacion','explicación','resumen','definicion','definición','texto'])).slice(0,600);
+  if(concept&&explanation) return {kind:'concept',concept:concept,explanation:explanation};
+  return null;
+}
+/* Una lección = enseñanza + práctica (3) + evaluación (1-2). Acepta el formato antiguo (exercises). */
+function rdNormLessonFlex(l,num,li){
+  if(!l||typeof l!=='object') return null;
+  const title=lmStr(lmPick(l,['title','titulo','nombre','leccion','lección','carta'])||('Lección '+(li+1))).slice(0,60);
+  let practice=(lmPick(l,['practice','practica','práctica'])||[]).slice(0,4).map(rdNormExFlex).filter(Boolean);
+  let quiz=(lmPick(l,['quiz','evaluacion','evaluación','final','examen'])||[]).slice(0,2).map(rdNormExFlex).filter(Boolean);
+  const legacy=(lmPick(l,['exercises','ejercicios'])||[]);
+  if(!practice.length&&!quiz.length&&Array.isArray(legacy)&&legacy.length){
+    const all=legacy.slice(0,5).map(rdNormExFlex).filter(Boolean);
+    practice=all.slice(0,3); quiz=all.slice(3,5);
+  }
+  if(practice.length<2||practice.length+quiz.length<3) return null;
+  return { id:'ai-u'+num+'l'+li, title:title, learn:rdNormLearnFlex(l), practice:practice.slice(0,4), quiz:quiz.slice(0,2) };
+}
+/* Pasos de una lección: primero el significado, luego la práctica y al final la evaluación. */
+function rdLessonSteps(l){
+  if(!l) return [];
+  const steps=[];
+  if(l.learn) steps.push({type:'meaning',learn:l.learn,q:l.title||'Para empezar'});
+  const pr=(l.practice&&l.practice.length)?l.practice:(Array.isArray(l.exercises)?l.exercises.slice(0,3):[]);
+  const qz=(l.quiz&&l.quiz.length)?l.quiz:(Array.isArray(l.exercises)?l.exercises.slice(3,5):[]);
+  pr.forEach(e=>steps.push(Object.assign({},e,{phase:'practice'})));
+  qz.forEach(e=>steps.push(Object.assign({},e,{phase:'eval'})));
+  return steps;
+}
 function rdUnwrapUnit(o,num){
   if(!o||typeof o!=='object'||Array.isArray(o)) return null;
   let cand=o;
@@ -1042,9 +1019,7 @@ function rdUnwrapUnit(o,num){
     if(!cand) return null;
   }
   const rawLessons=lmPick(cand,['lessons','lecciones'])||[];
-  const lessons=rawLessons.slice(0,3).map((l,li)=>({ id:'ai-u'+num+'l'+li,
-    title:lmStr(lmPick(l,['title','titulo','nombre','leccion'])||('Lección '+(li+1))).slice(0,60),
-    exercises:(lmPick(l,['exercises','ejercicios'])||[]).slice(0,4).map(rdNormExFlex).filter(Boolean) })).filter(l=>l.exercises.length>=2);
+  const lessons=rawLessons.slice(0,3).map((l,li)=>rdNormLessonFlex(l,num,li)).filter(Boolean);
   if(lessons.length<2) return null;
   return { title:lmStr(lmPick(cand,['unitTitle','title','titulo','nombre'])||('Unidad '+num)).slice(0,70),
     lessons:lessons, routeTitle:lmStr(lmPick(o,['routeTitle'])||lmPick(cand,['routeTitle'])).slice(0,90) };
@@ -1108,18 +1083,20 @@ const RutaDuo = {
   },
   openLesson(id){
     const f=this.flat().find(x=>x.lesson.id===id); if(!f) return;
-    this.session={lesson:f.lesson,pos:0,hearts:5,mistakes:0,first:0,xp:0,t0:Date.now(),mode:'check',sel:-1,ans:[],over:false};
+    this.session={lesson:f.lesson,steps:rdLessonSteps(f.lesson),pos:0,hearts:5,mistakes:0,first:0,xp:0,t0:Date.now(),mode:'check',sel:-1,ans:[],over:false};
     $('#rdModal').classList.add('open'); document.body.style.overflow='hidden';
     this.renderEx();
   },
   closeLesson(){ $('#rdModal').classList.remove('open'); document.body.style.overflow=''; this.session=null; },
   updTop(){ const s=this.session; if(!s) return;
-    $('#rdLBar').style.width=Math.round(s.pos/s.lesson.exercises.length*100)+'%';
+    $('#rdLBar').style.width=Math.round(s.pos/(s.steps.length||1)*100)+'%';
     $('#rdHearts').textContent='❤️ ∞ ilimitados'; },
   renderEx(){
-    const s=this.session; const ex=s.lesson.exercises[s.pos]; s.ex=ex; s.mode='check'; s.sel=-1; s.ans=[];
+    const s=this.session; const ex=s.steps[s.pos]; s.ex=ex; s.mode='check'; s.sel=-1; s.ans=[];
+    if(!ex) return;
+    if(ex.type==='meaning'){ this.renderMeaning(ex); return; }
     this.updTop();
-    let inner='<div class="rd-q">'+escapeHtml(ex.q)+'</div>';
+    let inner=(ex.phase==='eval'?'<span class="rd-phase eval">🏁 EVALUACIÓN FINAL</span>':'<span class="rd-phase practice">✏️ PRÁCTICA</span>')+'<div class="rd-q">'+escapeHtml(ex.q)+'</div>';
     if(ex.type==='choice') inner+='<div id="rdOpts">'+ex.options.map((o,i)=>'<button class="rd-opt" data-i="'+i+'">'+escapeHtml(o)+'</button>').join('')+'</div>';
     if(ex.type==='order'){ const sh=[...ex.words].sort(()=>Math.random()-.5);
       inner+='<div class="rd-answer" id="rdAns"><span class="micro">Toca las palabras en orden…</span></div><div class="rd-bank" id="rdBank">'+sh.map(w=>'<button class="rd-chip" data-w="'+escapeHtml(w)+'">'+escapeHtml(w)+'</button>').join('')+'</div>'; }
@@ -1132,6 +1109,16 @@ const RutaDuo = {
     if(ex.type==='order'){ $$('#rdBank .rd-chip').forEach(b=>b.onclick=()=>{ if(s.mode!=='check'||b.classList.contains('used'))return; b.classList.add('used'); s.ans.push(b.dataset.w); rdSnd('click'); this.drawAns(); });
       this.drawAns(); }
     if(ex.type==='blank'){ const inp=$('#rdBlank'); inp.focus(); inp.onkeydown=e=>{ if(e.key==='Enter') this.check(); }; }
+  },
+  renderMeaning(ex){
+    const s=this.session; this.updTop();
+    const L=ex.learn||{kind:'concept',concept:ex.q||'Lección',explanation:''};
+    let card='';
+    if(L.kind==='card') card='<div class="rd-teach"><h4>🔮 '+escapeHtml(L.name||ex.q||'')+'</h4><div class="rd-side up"><b>🟢 Al derecho</b><p>'+escapeHtml(L.upright||'')+'</p></div><div class="rd-side down"><b>🔴 Invertida</b><p>'+escapeHtml(L.reversed||'')+'</p></div></div>';
+    else card='<div class="rd-teach"><h4>📖 '+escapeHtml(L.concept||ex.q||'')+'</h4>'+(L.explanation?'<div class="rd-side up"><b>💡 Idea clave</b><p>'+escapeHtml(L.explanation)+'</p></div>':'')+'</div>';
+    $('#rdBody').innerHTML='<img id="rdMood" class="rd-mood" src="src/img/mascota-pensando.png?v=2" alt="Mascota pensando"><div class="rd-q">'+escapeHtml(ex.q||'')+'</div><span class="rd-phase learn">📖 PASO 1 · APRENDE</span>'+card+'<div class="micro">Lee con calma 👀 Después vienen los ejercicios de práctica y una evaluación final.</div>';
+    $('#rdFeed').className='rd-feed'; $('#rdFeed').innerHTML='';
+    const chk=$('#rdCheck'); chk.style.display=''; chk.textContent='¡Entendido! A practicar →'; chk.onclick=()=>{ rdSnd('click'); this.next(); };
   },
   drawAns(){ const s=this.session; const box=$('#rdAns');
     box.innerHTML = s.ans.length ? s.ans.map((w,i)=>'<button class="rd-inans" data-i="'+i+'">'+escapeHtml(w)+'</button>').join('') : '<span class="micro">Toca las palabras en orden…</span>';
@@ -1160,18 +1147,18 @@ const RutaDuo = {
     if(ok){ s.first++; s.xp+=10; rdSnd('ok'); rdMood('feliz'); feed.className='rd-feed ok'; feed.innerHTML='✅ ¡Correcto! +10 XP<span class="rd-exp">'+escapeHtml(s.ex.explain||'')+'</span>'; }
     else{ s.mistakes++; rdSnd('ko'); rdMood('animo'); this.updTop();
       feed.className='rd-feed ko'; feed.innerHTML='❌ Respuesta correcta: <b>'+escapeHtml(this.correctText())+'</b><span class="rd-exp">'+escapeHtml(s.ex.explain||'')+'</span><br><button class="btn btn-ghost btn-sm" id="rdExplainBtn" style="margin-top:8px">🤖 Que la IA me lo explique</button><div id="rdAiExp" style="margin-top:8px;font-weight:500"></div>'; }
-    s.mode='next'; $('#rdCheck').textContent = (s.pos+1>=s.lesson.exercises.length) ? 'Ver resultado' : 'Continuar';
+    s.mode='next'; $('#rdCheck').textContent = (s.pos+1>=s.steps.length) ? 'Ver resultado' : 'Continuar';
     const eb=$('#rdExplainBtn'); if(eb) eb.onclick=()=>this.explainAI();
   },
   next(){
     const s=this.session; if(!s) return;
     s.pos++;
-    if(s.pos>=s.lesson.exercises.length){ this.finish(); return; }
+    if(s.pos>=s.steps.length){ this.finish(); return; }
     this.renderEx();
   },
   fmtTime(ms){ const t=Math.round(ms/1000); return Math.floor(t/60)+':'+String(t%60).padStart(2,'0'); },
   finish(){
-    const s=this.session; const total=s.lesson.exercises.length; const acc=s.first/total;
+    const s=this.session; const total=s.steps.filter(x=>x.type!=='meaning').length||1; const acc=s.first/total;
     const stars = s.mistakes===0?3:(acc>=0.7?2:1);
     const gained = s.first*10+20;
     this.st.xp+=gained;
@@ -1227,26 +1214,43 @@ const RutaDuo = {
   async genFromMaterial(){
     const m=(typeof needMaterial==='function')?needMaterial():null; if(!m) return;
     const btn=$('#rdGenBtn'); btn.disabled=true; const old=btn.textContent;
-    const normUnit=(o,num)=>rdUnwrapUnit(o,num);
-    const askUnit=async(num,focus,titleField)=>{
-      let unit=null,lastErr='La IA no devolvió la unidad '+num+'.';
-      const schema='Ejemplo de formato (usa EXACTAMENTE estas claves en inglés): {"routeTitle":"Mi ruta","unitTitle":"Unidad '+num+'","lessons":[{"title":"Lección 1","exercises":[{"type":"choice","q":"¿...?","options":["A","B","C","D"],"answer":1,"explain":"por qué (p.X)"},{"type":"order","q":"Ordena: ...","words":["El","sensor","registra"],"explain":"por qué"},{"type":"blank","q":"El dato nace cuando un ___ es registrado.","answers":["evento"],"hint":"pista","explain":"por qué"}]}]}';
-      for(let a=0;a<3&&!unit;a++){
-        btn.textContent='⏳ Creando tu ruta… (unidad '+num+', intento '+(a+1)+'/3)';
+    const askLesson=async(num,li,focus,grab)=>{
+      let lesson=null,lastErr='La IA no devolvió la carta '+(li+1)+' de la unidad '+num+'.';
+      const schema='Ejemplo de formato (usa EXACTAMENTE estas claves en inglés): {"title":"El Loco","card":{"name":"El Loco","upright":"significado al derecho en 1-2 frases (p.X)","reversed":"significado invertida en 1-2 frases (p.X)"},"practice":[{"type":"choice","q":"¿...?","options":["A","B","C","D"],"answer":1,"explain":"por qué (p.X)"},{"type":"order","q":"Ordena: ...","words":["El","sensor","registra"],"explain":"por qué"},{"type":"blank","q":"El dato nace cuando un ___ es registrado.","answers":["evento"],"hint":"pista","explain":"por qué"}],"quiz":[{"type":"choice","q":"pregunta final de evaluación, distinta a las de práctica","options":["A","B","C","D"],"answer":0,"explain":"por qué (p.X)"}]} (Si el material NO es de Tarot, en vez de "card" usa "teach":{"concept":"...","explanation":"explicación breve en 2-3 frases"})';
+      for(let a=0;a<3&&!lesson;a++){
+        btn.textContent='⏳ Creando tu ruta… (unidad '+num+', carta '+(li+1)+'/3, intento '+(a+1)+'/3)';
         try{
-          const txt=await lmGenerateText({ instruction: basePrompt(m)+'\nTAREA: Genera la UNIDAD '+num+' de una RUTA DE APRENDIZAJE estilo Duolingo en español basada SOLO en el material. Enfócate en: '+focus+' Devuelve SOLO JSON válido, sin markdown ni texto extra, con este esquema exacto: '+schema+' Reglas: exactamente 3 lecciones, 4 ejercicios por lección alternando choice, order, blank, choice. Frases muy cortas, explicaciones de máximo 12 palabras.' });
+          const txt=await lmGenerateText({ instruction: basePrompt(m)+'\nTAREA: Genera UNA LECCIÓN de una RUTA DE APRENDIZAJE estilo Duolingo en español basada SOLO en el material. Enseña UNA sola carta o concepto. Enfócate en: '+focus+' Devuelve SOLO JSON válido, sin markdown ni texto extra, con este esquema exacto: '+schema+' Reglas: "practice" exactamente 3 ejercicios (choice, order y blank, en ese orden); "quiz" exactamente 1 pregunta choice de evaluación final, distinta a las de práctica. Significados de 1-2 frases con citas (p.X). Explicaciones de máximo 12 palabras.' });
           const o=extractJSON(txt.text||String(txt));
-          unit=normUnit(o,num);
-          if(unit&&titleField&&!unit.routeTitle) unit.routeTitle=String((o&&o.routeTitle)||'').slice(0,90);
+          lesson=rdNormLessonFlex(o,num,li);
+          if(lesson&&grab) grab(o,lesson);
         }catch(e){ console.error(e); lastErr=String(e.message||e); }
       }
-      if(!unit) throw new Error(lastErr);
-      return unit;
+      if(!lesson) throw new Error(lastErr);
+      return lesson;
+    };
+    const buildUnit=async(num,focus,unitFallback,avoid)=>{
+      const lessons=[]; const used=[].concat(avoid||[]); let unitTitle='';
+      for(let li=0;li<3;li++){
+        let f=focus;
+        if(used.length) f+=' Ya enseñaste: '+used.map(t=>'"'+t+'"').join(', ')+'. Elige OTRA carta o concepto DIFERENTE a esos.';
+        if(li===0&&num===1) f+=' Además incluye "routeTitle" con un título corto para toda la ruta (máx 60 caracteres).';
+        if(li===2) f+=' Además incluye "unitTitle" con un título corto para esta unidad (máx 60 caracteres).';
+        const l=await askLesson(num,li,f,(o)=>{
+          if(!o||typeof o!=='object') return;
+          if(num===1&&li===0) RutaDuo._rt=lmStr(o.routeTitle).slice(0,60);
+          if(li===2) unitTitle=lmStr(lmPick(o,['unitTitle','unit_title','titulo'])).slice(0,70);
+        });
+        lessons.push(l); used.push(l.title);
+      }
+      return {title:unitTitle||unitFallback,lessons:lessons};
     };
     try{
-      const u1=await askUnit(1,'lo más básico y fundamental del tema: qué es, los primeros conceptos y el vocabulario esencial.',true);
-      const u2=await askUnit(2,'la aplicación y el significado avanzado: interpretar, comparar y repasar lo aprendido.',false);
-      this.route={ title:(u1.routeTitle||'Mi ruta personalizada'), units:[{title:u1.title,lessons:u1.lessons},{title:u2.title,lessons:u2.lessons}] };
+      RutaDuo._rt='';
+      const u1=await buildUnit(1,'lo más básico y fundamental: las primeras cartas o conceptos, qué significan y el vocabulario esencial.','Unidad 1 · Fundamentos');
+      const u2=await buildUnit(2,'la aplicación y el significado avanzado: interpretar combinaciones, comparar cartas o conceptos y repasar lo aprendido.','Unidad 2 · Aplicación',u1.lessons.map(l=>l.title));
+      this.route={ title:(RutaDuo._rt||'Mi ruta personalizada'), units:[{title:u1.title,lessons:u1.lessons},{title:u2.title,lessons:u2.lessons}] };
+      RutaDuo._rt='';
       this.route.ai=true; this.st.done={}; this.save(); this.renderPath();
       toast('✨ Nueva ruta creada desde tu material: '+this.route.title);
       document.querySelector('#ruta .rd-wrap').scrollIntoView({behavior:'smooth'});
@@ -1264,8 +1268,9 @@ function loadProfile(){ try{ return JSON.parse(localStorage.getItem('lm_profile'
 function renderProfile(){
   const p=loadProfile();
   const chip=$('#pfChip'), reg=$('#regBtn'), greet=$('#pfGreet');
-  if(p&&p.name){ chip.hidden=false; chip.innerHTML='<span>'+(p.avatar||'🦊')+'</span><b>'+escapeHtml(p.name)+'</b>'; if(reg) reg.style.display='none'; greet.hidden=false; greet.innerHTML='👋 Hola, <b>'+escapeHtml(p.name)+'</b> · ¡a por ello hoy! 🔥'; }
-  else{ chip.hidden=true; if(reg) reg.style.display=''; greet.hidden=true; }
+  if(greet) greet.hidden=true;
+  if(p&&p.name){ if(chip){ chip.hidden=false; chip.innerHTML='<span>'+(p.avatar||'🦊')+'</span><b>'+escapeHtml(p.name)+'</b>'; } if(reg) reg.style.display='none'; if(greet){ greet.hidden=false; greet.innerHTML='👋 Hola, <b>'+escapeHtml(p.name)+'</b> · ¡a por ello hoy! 🔥'; } }
+  else{ if(chip) chip.hidden=true; if(reg) reg.style.display=''; }
 }
 function openProfile(){
   const p=loadProfile()||{};
@@ -1415,9 +1420,9 @@ $('#rdClose').onclick=()=>RutaDuo.closeLesson();
 try{ if(localStorage.getItem('lm_ruta_muted')==='1') $('#rdMute').textContent='🔇'; }catch(e){}
 $('#rdMute').onclick=()=>{ try{ const m=localStorage.getItem('lm_ruta_muted')==='1'?'0':'1'; localStorage.setItem('lm_ruta_muted',m); $('#rdMute').textContent=m==='1'?'🔇':'🔊'; if(m!=='1') rdSnd('click'); }catch(e){} };
 /* ===== Vistas por pestañas (botones superiores) ===== */
-const VIEWS = { inicio: ['.hero', '.mockwrap', '#como', '#funciones', '#gratis'], estudio: ['#demo'], ruta: ['#ruta'], ayuda: ['#faq'] };
+const VIEWS = { estudio: ['#demo', '#gratis'], ruta: ['#ruta'], ayuda: ['#faq'] };
 function setView(v, scrollSel){
-  if(!VIEWS[v]) v='inicio';
+  if(!VIEWS[v]) v='estudio';
   Object.keys(VIEWS).forEach(k=>{ const show=(k===v); VIEWS[k].forEach(s=>{ const el=document.querySelector(s); if(el) el.hidden=!show; }); });
   $$('#viewTabs button').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
   try{ history.replaceState(null,'','#'+v); }catch(e){}
@@ -1429,14 +1434,14 @@ $$('#viewTabs button').forEach(b=>b.onclick=()=>{ if(b.dataset.view) setView(b.d
 document.addEventListener('click', e=>{
   const a=e.target&&e.target.closest?e.target.closest('a[href^="#"]'):null; if(!a) return;
   const h=a.getAttribute('href');
-  const map={'#demo':['estudio'], '#ruta':['ruta'], '#faq':['ayuda'], '#como':['inicio', '#como'], '#funciones':['inicio', '#funciones'], '#top':['inicio'], '#gratis':['inicio', '#gratis']};
+  const map={'#demo':['estudio'], '#ruta':['ruta'], '#faq':['ayuda'], '#gratis':['estudio', '#gratis']};
   if(map[h]){ e.preventDefault(); setView(map[h][0], map[h][1]); }
 });
 function fixTabsTop(){ const tb=document.querySelector('.topbar'), vt=document.querySelector('#viewTabs'); if(tb&&vt) vt.style.top=tb.offsetHeight+'px'; }
 window.addEventListener('resize', fixTabsTop); fixTabsTop();
 (function initView(){ let h=''; try{ h=location.hash.replace('#',''); }catch(e){}
-  const legacy={'demo':'estudio','ruta':'ruta','faq':'ayuda','como':'inicio','funciones':'inicio','top':'inicio','gratis':'inicio'};
-  if(VIEWS[h]) setView(h); else if(legacy[h]) setView(legacy[h], h==='demo'?null:('#'+h)); else setView('inicio');
+  const legacy={'demo':'estudio','ruta':'ruta','faq':'ayuda','gratis':'estudio','como':'estudio','funciones':'estudio','top':'estudio'};
+  if(VIEWS[h]) setView(h); else if(legacy[h]) setView(legacy[h], h==='demo'?null:('#'+h)); else setView('estudio');
 })();
 </script>
 </script>
