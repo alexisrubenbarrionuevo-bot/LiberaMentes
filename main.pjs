@@ -1,0 +1,8 @@
+$meta
+  title = LiberaMentes — Aprende cualquier cosa, 10 veces más rápido
+  description = Convierte tus materiales de estudio en notas, cuestionarios, tarjetas, mapas mentales y un plan de estudio personalizado con IA. Todo en español y con citas de tus fuentes.
+  shortTitle = LiberaMentes
+
+generateText = {import:ai-text-plugin}
+
+
