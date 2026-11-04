@@ -16,7 +16,7 @@ Página personal de estudio en español estilo LearnKata: landing + espacio de e
 
 ## Archivos
 - `main.pjs`: $meta + `generateText = {import:ai-text-plugin}`
-- `index.html`: todo el UI/CSS/JS. PDF vía cdnjs pdf.js. Sin backend; stats en localStorage `ak_stats`.
+- `index.html`: todo el UI/CSS/JS. PDF vía cdnjs pdf.js. Sin backend; stats en localStorage `ak_stats`. Fuera de Perchance, la IA usa el Apps Script de Drive como proxy (`action: ai`, con `AI_KEY` en Propiedades).
 
 ## Notas
 - 100% español. Responsive (390px y desktop probados).

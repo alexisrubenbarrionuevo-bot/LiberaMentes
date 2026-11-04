@@ -36,6 +36,9 @@ Tu página  ──(Web App + clave secreta)──▶  Apps Script  ──▶  �
    - Nombre: `FOLDER_ID` · Valor: el ID de tu carpeta.
    - Nombre: `SECRET` · Valor: una clave larga que inventes,
      por ejemplo `LM-9fK2xQ7...` (guárdala, la pegarás en la página).
+   - Nombre: `AI_KEY` · Valor: tu clave de la API de Gemini
+     (solo necesaria para usar la IA fuera de Perchance).
+   - Nombre: `AI_MODEL` · Valor opcional, por ejemplo `gemini-2.5-flash`.
 
 > La clave nunca va dentro del código: así puedes compartir el script
 > sin exponer tu carpeta.
@@ -52,7 +55,7 @@ Tu página  ──(Web App + clave secreta)──▶  Apps Script  ──▶  �
 6. Copia la URL del tipo:
    `https://script.google.com/macros/s/AKfyc.../exec`
 
-> Si cambias el código después, entra en **Desplegar → Gestionar
+> Si cambias el código o añades `AI_KEY` después, entra en **Desplegar → Gestionar
 > implementaciones → Editar → Versión nueva** para que se aplique.
 
 ## 5. Conéctalo en LiberaMentes

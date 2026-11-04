@@ -453,6 +453,7 @@ img{max-width:100%;height:auto}
           <div class="rd-btnrow" style="justify-content:flex-start;margin-top:8px"><button class="btn btn-ghost btn-sm" id="dvSaveMat">⤴ Material</button><button class="btn btn-ghost btn-sm" id="dvSavePlan">⤴ Plan</button><button class="btn btn-ghost btn-sm" id="dvSaveNotes">⤴ Resumen</button><button class="btn btn-ghost btn-sm" id="dvList">🔄 Archivos</button></div>
           <div class="rd-btnrow" style="justify-content:flex-start;margin-top:8px"><button class="btn btn-ghost btn-sm" id="dvLoadMat">⤵ Traer material</button><button class="btn btn-ghost btn-sm" id="dvLoadPlan">⤵ Traer plan</button><button class="btn btn-ghost btn-sm" id="dvLoadNotes">⤵ Traer resumen</button></div>
           <div class="micro">Si el navegador pierde tus datos, tráelos desde Drive sin volver a subir ni pegar nada.</div>
+          <div class="micro">En la copia publicada fuera de Perchance, la IA usa tu Apps Script como proxy. En Apps Script añade la propiedad <b>AI_KEY</b> y crea una <b>versión nueva</b> del despliegue.</div>
           <div id="dvFiles" class="micro" style="margin-top:8px"></div>
         </div>
         <div class="statgrid"><div class="stat"><b id="stPlan">0%</b><span>Plan completado</span></div><div class="stat"><b id="stQuiz">–</b><span>Último quiz</span></div><div class="stat"><b id="stCards">0</b><span>Tarjetas repasadas</span></div></div>
@@ -703,6 +704,33 @@ function storedMaterialText(){
 function getMaterial(){const t=($('#materialInput').value||"").trim();const f=(fileText||"").trim();let current='';if(f&&t)current="ARCHIVO SUBIDO:\n"+f.slice(0,12000)+"\n\nAPUNTES PEGADOS:\n"+t.slice(0,6000);else current=(f||t);if(current.trim())return current.slice(0,14000);return storedMaterialText().slice(0,14000);}
 function needMaterial(){const m=getMaterial();if(m.length<200){toast('Pega al menos 200 caracteres o sube un archivo (o usa un ejemplo). Si ya lo habías cargado, pulsa “⤵ Traer material” para recuperarlo desde Drive.');return null;}return m;}
 function basePrompt(material){const lvl=$('#levelSel').value, fecha=$('#examDate').value||"sin fecha fija";return `Eres LiberaMentes, tutor experto en español, claro y motivador, nivel ${lvl}. Examen: ${fecha}. Respondes SIEMPRE en español. Citas el material como (p.X) o (§Y) cuando sea posible. Si algo no está en el material, dilo explícitamente y complementa de forma marcada como [Conocimiento general].\n<MATERIAL DEL ESTUDIANTE>\n${material}\n</MATERIAL DEL ESTUDIANTE>`;}
+function lmDriveAIReady(){try{const c=driveCfg();return !!(c&&c.url&&c.secret);}catch(e){return false;}}
+async function lmGenerateText(opts){
+  const instruction=typeof opts==='string'?opts:opts.instruction;
+  const onChunk=opts&&opts.onChunk;
+  const hasPerchanceAI=(typeof root!=='undefined'&&root&&typeof root.generateText==='function');
+  if(hasPerchanceAI){
+    try{
+      return await root.generateText({instruction:instruction,onChunk:onChunk});
+    }catch(e){
+      if(!lmDriveAIReady())throw e;
+    }
+  }
+  if(lmDriveAIReady()){
+    try{
+      const o=await driveApi({action:'ai',prompt:instruction});
+      const text=String((o&&o.text)||'');
+      if(!text)throw new Error('El proxy de IA no devolvió texto.');
+      if(onChunk)onChunk({textChunk:text,fullTextSoFar:text});
+      return {text:text,generatedText:text};
+    }catch(e){
+      const msg=String((e&&e.message)||e);
+      if(msg.indexOf('Acción desconocida: ai')>=0)throw new Error('Tu Apps Script está desactualizado. Pega el nuevo Code.gs y crea una versión nueva del despliegue.');
+      throw e;
+    }
+  }
+  throw new Error('Esta copia no tiene IA activa. En Apps Script añade AI_KEY, crea una versión nueva y reconecta Drive.');
+}
 function setOut(html){$('#outputEl').innerHTML=html;if(!lmNoScroll)$('#outputEl').scrollIntoView({behavior:'smooth',block:'nearest'});}
 function loadingHTML(msg){return `<div class="loading"><div class="spinner"></div><div>${msg}<br><span style="color:#667085;font-weight:500;font-size:13px">La IA está leyendo tu material… <span class="typingdots"><span></span><span></span><span></span></span></span></div></div>`;}
 function updateStats(){try{const p=JSON.parse(localStorage.getItem('ak_stats')||'{}');$('#stQuiz').textContent=p.lastQuiz!=null?p.lastQuiz+'%':'–';$('#stCards').textContent=p.cards||0;const done=planChecks.filter(Boolean).length,tot=planChecks.length||1;const pct=Math.round(done/tot*100);$('#stPlan').textContent=p.planPct!=null?p.planPct+'%':(tot>1?pct+'%':'0%');$('#globalBar').style.width=((p.planPct||pct||0))+'%';}catch(e){}}
@@ -763,7 +791,7 @@ async function genPlan(silent){
   setOut(loadingHTML('Creando tu plan de estudio personalizado…'));
   try{
     let full='';
-    const res=await root.generateText({instruction:basePrompt(m)+`\nTAREA: Crea un PLAN DE ESTUDIO personalizado de 7 días basado SOLO en el material. Formato Markdown en español:\n# 🎯 Meta y diagnóstico (2 líneas)\n## 🗓️ Plan día por día (Día 1..7: objetivo, conceptos clave con citas, micro-lección de 15-20 min, 1 mini-quiz de 2 preguntas, 1 tarjeta a crear)\n## ⭐ Conceptos por prioridad (Alta/Media/Baja con motivo)\n## ✅ Checklist final (8 casillas con - [ ] )\nCierra con una frase motivadora y tiempo total estimado.`,onChunk:d=>{full=d.fullTextSoFar;setOut(marked(full)+`<div class="micro">Generando… <span class="typingdots"><span></span><span></span><span></span></span></div>`);}});
+    const res=await lmGenerateText({instruction:basePrompt(m)+`\nTAREA: Crea un PLAN DE ESTUDIO personalizado de 7 días basado SOLO en el material. Formato Markdown en español:\n# 🎯 Meta y diagnóstico (2 líneas)\n## 🗓️ Plan día por día (Día 1..7: objetivo, conceptos clave con citas, micro-lección de 15-20 min, 1 mini-quiz de 2 preguntas, 1 tarjeta a crear)\n## ⭐ Conceptos por prioridad (Alta/Media/Baja con motivo)\n## ✅ Checklist final (8 casillas con - [ ] )\nCierra con una frase motivadora y tiempo total estimado.`,onChunk:d=>{full=d.fullTextSoFar;setOut(marked(full)+`<div class="micro">Generando… <span class="typingdots"><span></span><span></span><span></span></span></div>`);}});
     window._lastPlan=full;
     planChecks=normalizePlanChecks(full,[]);
     lmSaveOutputs({plan:full,planChecks:planChecks.slice(),tab:'plan'});
@@ -780,7 +808,7 @@ async function genNotas(restoreOnly){
   setOut(loadingHTML('Resumiendo tus notas con citas…'));
   try{
     let full='';
-    await root.generateText({instruction:basePrompt(m)+`\nTAREA: Genera NOTAS DE ESTUDIO en español, Markdown:\n# 📝 Resumen en 5 ideas clave (cada una con cita)\n## 📚 Explicación clara por secciones del material\n## 🔑 Términos y definiciones (tabla)\n## ❓ 3 preguntas para autoevaluarte\nMáximo 450 palabras, tono didáctico.`,onChunk:d=>{full=d.fullTextSoFar; window._lastNotes=full; setOut(marked(full));}});
+    await lmGenerateText({instruction:basePrompt(m)+`\nTAREA: Genera NOTAS DE ESTUDIO en español, Markdown:\n# 📝 Resumen en 5 ideas clave (cada una con cita)\n## 📚 Explicación clara por secciones del material\n## 🔑 Términos y definiciones (tabla)\n## ❓ 3 preguntas para autoevaluarte\nMáximo 450 palabras, tono didáctico.`,onChunk:d=>{full=d.fullTextSoFar; window._lastNotes=full; setOut(marked(full));}});
     window._lastNotes=full;
     lmSaveOutputs({notes:full,tab:'notas'});
     renderNotesOutput(full);
@@ -790,7 +818,7 @@ window.genNotas=genNotas;
 async function genQuiz(){
   const m=needMaterial();if(!m)return;setActiveTab('quiz');setOut(loadingHTML('Creando tu cuestionario de 5 preguntas…'));
   try{
-    const txt=await root.generateText({instruction:basePrompt(m)+`\nTAREA: Genera EXACTAMENTE 5 preguntas tipo test en español basadas en el material. Devuelve SOLO JSON válido, sin markdown ni texto extra, con este esquema:\n[{"q":"pregunta","options":["A","B","C","D"],"answer":1,"explain":"explicación breve con cita (p.X)","cita":"p.X"}]\nEl índice answer es 0-3.`});
+    const txt=await lmGenerateText({instruction:basePrompt(m)+`\nTAREA: Genera EXACTAMENTE 5 preguntas tipo test en español basadas en el material. Devuelve SOLO JSON válido, sin markdown ni texto extra, con este esquema:\n[{"q":"pregunta","options":["A","B","C","D"],"answer":1,"explain":"explicación breve con cita (p.X)","cita":"p.X"}]\nEl índice answer es 0-3.`});
     let arr=extractJSON(txt.text||String(txt));
     if(!arr||!arr.length)throw new Error('La IA no devolvió JSON válido. Reintenta.');
     quizState={items:arr.slice(0,5),sel:new Array(5).fill(null),done:false};
@@ -801,7 +829,7 @@ async function genQuiz(){
 async function genCards(){
   const m=needMaterial();if(!m)return;setActiveTab('cards');setOut(loadingHTML('Creando 8 tarjetas con repetición espaciada…'));
   try{
-    const txt=await root.generateText({instruction:basePrompt(m)+`\nTAREA: Genera EXACTAMENTE 8 tarjetas de memoria en español. SOLO JSON válido:\n[{"front":"pregunta o término","back":"respuesta breve + cita (p.X)"}]\nCubre lo más preguntable del material, de fácil a difícil.`});
+    const txt=await lmGenerateText({instruction:basePrompt(m)+`\nTAREA: Genera EXACTAMENTE 8 tarjetas de memoria en español. SOLO JSON válido:\n[{"front":"pregunta o término","back":"respuesta breve + cita (p.X)"}]\nCubre lo más preguntable del material, de fácil a difícil.`});
     let arr=extractJSON(txt.text||String(txt));if(!arr||!arr.length)throw new Error('Sin JSON válido. Reintenta.');
     cardsState={items:arr.slice(0,8),i:0,ok:0,reviewed:0,flipped:false};
     lmSaveOutputs({cards:cardsState,lastCards:null,tab:'cards'});
@@ -812,7 +840,7 @@ window.genCards=genCards;
 async function genMapa(){
   const m=needMaterial();if(!m)return;setActiveTab('mapa');setOut(loadingHTML('Dibujando tu mapa mental…'));
   try{
-    const txt=await root.generateText({instruction:basePrompt(m)+`\nTAREA: Extrae el MAPA MENTAL del material. SOLO JSON válido:\n{"central":"tema central (máx 6 palabras)","ramas":[{"titulo":"idea principal","hijos":["subidea 1","subidea 2","subidea 3"]}]}\n5-7 ramas máximo, hijos cortos (máx 8 palabras).`});
+    const txt=await lmGenerateText({instruction:basePrompt(m)+`\nTAREA: Extrae el MAPA MENTAL del material. SOLO JSON válido:\n{"central":"tema central (máx 6 palabras)","ramas":[{"titulo":"idea principal","hijos":["subidea 1","subidea 2","subidea 3"]}]}\n5-7 ramas máximo, hijos cortos (máx 8 palabras).`});
     const obj=extractJSON(txt.text||String(txt));const data=Array.isArray(obj)?{central:'Tu tema',ramas:obj}:obj;
     mindmapData=lmSanitizeMindmap(data);
     lmSaveOutputs({mindmap:mindmapData,tab:'mapa'});
@@ -827,7 +855,7 @@ window.genMapa=genMapa;
 function renderChat(){
   setActiveTab('chat');
   setOut(`<h3>💬 Chatea con tus notas</h3><p style="color:#667085;font-size:13.5px">Pregunta lo que sea sobre tu material. La IA responde <b>solo</b> con lo que está en tu texto y cita la fuente. Si no está, te avisa.</p><div class="chatlog" id="chatLog">${chatHistory.length?chatHistory.map(c=>`<div class="msg ${c.r==='u'?'u':'a'}">${c.html}</div>`).join(''):`<div class="msg a">👋 ¡Hola! Soy tu tutor. Sube o pega tu material y pregúntame, por ejemplo: <i>“Hazme un resumen para un examen de mañana”</i> o <i>“¿Por qué la respuesta es la B?”</i></div>`}</div><div class="chatrow"><input id="chatInput" placeholder="Escribe tu pregunta… (Enter para enviar)"><button class="btn btn-primary btn-sm" id="chatSend">Enviar</button></div>`);
-  const send=async()=>{const inp=$('#chatInput');const q=inp.value.trim();if(!q)return;const m=needMaterial();if(!m)return;inp.value='';pushChat('u',escapeHtml(q));pushChat('a',`<span class="typingdots"><span></span><span></span><span></span></span> Pensando…`);chatHistoryRaw.push('Estudiante: '+q);lmPersistChat();try{let full='';const ans=await root.generateText({instruction:chatPrompt(m)+`\nTAREA: Responde a la última pregunta del estudiante usando SOLO el material cuando sea posible, con citas (p.X). Si no está en el material, dilo y aporta [Conocimiento general] brevemente. Responde en español, con pasos si es un "por qué".`,onChunk:d=>{full=d.fullTextSoFar;chatHistory[chatHistory.length-1].html=marked(full);const log=$('#chatLog');if(log)log.innerHTML=chatHistory.map(c=>`<div class="msg ${c.r==='u'?'u':'a'}">${c.html}</div>`).join('');log.scrollTop=log.scrollHeight;}});chatHistoryRaw.push('Tutor: '+(ans.text||String(ans)).slice(0,2000));lmPersistChat();}catch(e){chatHistory[chatHistory.length-1].html='⚠️ '+escapeHtml(String(e.message||e).slice(0,250))+`<div style="margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="renderChat()">Reabrir el chat</button></div>`;const log=$('#chatLog');if(log)log.innerHTML=chatHistory.map(c=>`<div class="msg ${c.r==='u'?'u':'a'}">${c.html}</div>`).join('');lmPersistChat();}};
+  const send=async()=>{const inp=$('#chatInput');const q=inp.value.trim();if(!q)return;const m=needMaterial();if(!m)return;inp.value='';pushChat('u',escapeHtml(q));pushChat('a',`<span class="typingdots"><span></span><span></span><span></span></span> Pensando…`);chatHistoryRaw.push('Estudiante: '+q);lmPersistChat();try{let full='';const ans=await lmGenerateText({instruction:chatPrompt(m)+`\nTAREA: Responde a la última pregunta del estudiante usando SOLO el material cuando sea posible, con citas (p.X). Si no está en el material, dilo y aporta [Conocimiento general] brevemente. Responde en español, con pasos si es un "por qué".`,onChunk:d=>{full=d.fullTextSoFar;chatHistory[chatHistory.length-1].html=marked(full);const log=$('#chatLog');if(log)log.innerHTML=chatHistory.map(c=>`<div class="msg ${c.r==='u'?'u':'a'}">${c.html}</div>`).join('');log.scrollTop=log.scrollHeight;}});chatHistoryRaw.push('Tutor: '+(ans.text||String(ans)).slice(0,2000));lmPersistChat();}catch(e){chatHistory[chatHistory.length-1].html='⚠️ '+escapeHtml(String(e.message||e).slice(0,250))+`<div style="margin-top:8px"><button class="btn btn-ghost btn-sm" onclick="renderChat()">Reabrir el chat</button></div>`;const log=$('#chatLog');if(log)log.innerHTML=chatHistory.map(c=>`<div class="msg ${c.r==='u'?'u':'a'}">${c.html}</div>`).join('');lmPersistChat();}};
   $('#chatSend').onclick=send;$('#chatInput').onkeydown=e=>{if(e.key==='Enter')send();};
 }
 let chatHistoryRaw=[];
@@ -1177,7 +1205,7 @@ const RutaDuo = {
     const ua=s.ex.type==='choice'?('Opción elegida: '+(s.sel>=0?s.ex.options[s.sel]:'(sin respuesta)')):('Respuesta del estudiante: '+(this.userAnswer()||'(vacía)'));
     try{
       let full='';
-      await root.generateText({ instruction: base+'\nTAREA: El estudiante falló esta pregunta.\nPregunta: '+s.ex.q+'\n'+ua+'\nRespuesta correcta: '+this.correctText()+'\nExplica en español, en máximo 120 palabras: por qué la correcta es correcta y cuál fue el error probable. '+(m?'Cita el material (p.X) cuando aplique.':'')+' Tono amable y directo.',
+      await lmGenerateText({ instruction: base+'\nTAREA: El estudiante falló esta pregunta.\nPregunta: '+s.ex.q+'\n'+ua+'\nRespuesta correcta: '+this.correctText()+'\nExplica en español, en máximo 120 palabras: por qué la correcta es correcta y cuál fue el error probable. '+(m?'Cita el material (p.X) cuando aplique.':'')+' Tono amable y directo.',
         onChunk:d=>{ full=d.fullTextSoFar; const bx=$('#rdAiExp'); if(bx) bx.innerHTML=marked(full); } });
     }catch(e){ const bx=$('#rdAiExp'); if(bx) bx.innerHTML='⚠️ '+escapeHtml(String(e.message||e).slice(0,200)); if(btn){ btn.disabled=false; btn.textContent='🤖 Reintentar'; } }
   },
@@ -1192,7 +1220,7 @@ const RutaDuo = {
     const base=m?basePrompt(m):'Eres un coach de estudio experto, en español, motivador y directo.';
     try{
       let full='';
-      await root.generateText({ instruction: base+'\nTAREA: Eres el coach del estudiante. Analiza su progreso en la ruta de aprendizaje y devuelve un informe breve en español, en Markdown:\n'+det+'\nXP total: '+this.st.xp+' · Racha: '+this.st.streak.n+' días.\n'+(m?('Contexto del material (extracto):\n'+m.slice(0,4000)+'\n'):'')+'Formato exacto: ## 💪 Fortalezas (2-3 bullets, con citas p.X si aplican) ## 🎯 A reforzar (2-3 bullets) ## 📝 Plan de repaso (3 pasos concretos) ## 🔥 Mensaje motivador (1 línea). Máximo 300 palabras.',
+      await lmGenerateText({ instruction: base+'\nTAREA: Eres el coach del estudiante. Analiza su progreso en la ruta de aprendizaje y devuelve un informe breve en español, en Markdown:\n'+det+'\nXP total: '+this.st.xp+' · Racha: '+this.st.streak.n+' días.\n'+(m?('Contexto del material (extracto):\n'+m.slice(0,4000)+'\n'):'')+'Formato exacto: ## 💪 Fortalezas (2-3 bullets, con citas p.X si aplican) ## 🎯 A reforzar (2-3 bullets) ## 📝 Plan de repaso (3 pasos concretos) ## 🔥 Mensaje motivador (1 línea). Máximo 300 palabras.',
         onChunk:d=>{ full=d.fullTextSoFar; const o=$('#rdCoachOut'); if(o) o.innerHTML=marked(full); } });
     }catch(e){ const o=$('#rdCoachOut'); if(o) o.innerHTML='<b>⚠️ No se pudo generar el análisis.</b><p style="color:#667085">'+escapeHtml(String(e.message||e).slice(0,250))+'</p>'; }
   },
@@ -1206,7 +1234,7 @@ const RutaDuo = {
       for(let a=0;a<3&&!unit;a++){
         btn.textContent='⏳ Creando tu ruta… (unidad '+num+', intento '+(a+1)+'/3)';
         try{
-          const txt=await root.generateText({ instruction: basePrompt(m)+'\nTAREA: Genera la UNIDAD '+num+' de una RUTA DE APRENDIZAJE estilo Duolingo en español basada SOLO en el material. Enfócate en: '+focus+' Devuelve SOLO JSON válido, sin markdown ni texto extra, con este esquema exacto: '+schema+' Reglas: exactamente 3 lecciones, 4 ejercicios por lección alternando choice, order, blank, choice. Frases muy cortas, explicaciones de máximo 12 palabras.' });
+          const txt=await lmGenerateText({ instruction: basePrompt(m)+'\nTAREA: Genera la UNIDAD '+num+' de una RUTA DE APRENDIZAJE estilo Duolingo en español basada SOLO en el material. Enfócate en: '+focus+' Devuelve SOLO JSON válido, sin markdown ni texto extra, con este esquema exacto: '+schema+' Reglas: exactamente 3 lecciones, 4 ejercicios por lección alternando choice, order, blank, choice. Frases muy cortas, explicaciones de máximo 12 palabras.' });
           const o=extractJSON(txt.text||String(txt));
           unit=normUnit(o,num);
           if(unit&&titleField&&!unit.routeTitle) unit.routeTitle=String((o&&o.routeTitle)||'').slice(0,90);

@@ -10,7 +10,8 @@
  * 1. Crea una carpeta en Drive y copia su ID (FOLDER_ID).
  * 2. Pega este archivo en un proyecto de Apps Script.
  * 3. En "Configuración del proyecto > Propiedades de secuencia"
- *    añade FOLDER_ID y SECRET (una clave larga que inventes).
+ *    añade FOLDER_ID, SECRET y AI_KEY (esta última solo si usarás
+ *    la IA fuera de Perchance).
  * 4. Desplegar > Nueva implementación > Aplicación web con
  *    "Ejecutar como: Yo" y "Quién tiene acceso: Cualquier usuario".
  * 5. Copia la URL https://script.google.com/macros/s/.../exec
@@ -20,6 +21,10 @@
 var PROP_FOLDER = 'FOLDER_ID';
 var PROP_SECRET = 'SECRET';
 var MAX_GET_CHARS = 200000; // límite de lectura por archivo
+var PROP_AI_KEY = 'AI_KEY'; // clave de Gemini en Propiedades de secuencia
+var PROP_AI_MODEL = 'AI_MODEL'; // opcional; por defecto gemini-2.5-flash
+var MAX_AI_PROMPT_CHARS = 60000;
+var MAX_AI_OUTPUT_CHARS = 100000;
 
 // RESPALDO (opcional): si las Propiedades de secuencia no te funcionan,
 // escribe tus valores entre las comillas y crea una VERSIÓN NUEVA
@@ -77,6 +82,7 @@ function route_(p) {
     if (action === 'list') return out_({ ok: true, files: list_(String(p.prefix || '')) });
     if (action === 'upload') return out_({ ok: true, file: upload_(p) });
     if (action === 'save') return out_({ ok: true, file: save_(p) }); // crea o SOBRESCRIBE
+    if (action === 'ai') return out_({ ok: true, text: ai_(p) }); // proxy de IA para copias fuera de Perchance
     if (action === 'get') return out_({ ok: true, file: get_(p) });
     if (action === 'remove') return out_({ ok: true, removed: remove_(p) });
     return out_({ ok: false, error: 'Acción desconocida: ' + action });
@@ -85,6 +91,39 @@ function route_(p) {
   } finally {
     try { lock.releaseLock(); } catch (err2) {}
   }
+}
+
+/* Proxy de IA para la copia publicada fuera de Perchance.
+ * Usa la clave guardada en Propiedades de secuencia (AI_KEY, nunca en el código).
+ * El frontend envía el mismo SECRET de Drive como token. */
+function ai_(p) {
+  var props = PropertiesService.getScriptProperties();
+  var key = props.getProperty(PROP_AI_KEY);
+  if (!key) throw new Error('Falta AI_KEY en Propiedades de secuencia. Añade tu clave de Gemini y crea una versión nueva del despliegue.');
+  var model = props.getProperty(PROP_AI_MODEL) || 'gemini-2.5-flash';
+  var prompt = String((p && (p.prompt || p.instruction)) || '');
+  if (prompt.length < 10) throw new Error('Prompt vacío.');
+  if (prompt.length > MAX_AI_PROMPT_CHARS) prompt = prompt.slice(0, MAX_AI_PROMPT_CHARS);
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(key);
+  var payload = {
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
+  };
+  var resp = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+  var code = resp.getResponseCode();
+  var body = resp.getContentText() || '';
+  if (code < 200 || code >= 300) throw new Error('Error de IA (' + code + '): ' + body.slice(0, 300));
+  var o = JSON.parse(body);
+  var first = ((o.candidates || [])[0] || {}).content || {};
+  var parts = first.parts || [];
+  var text = parts.map(function (x) { return (x && x.text) || ''; }).join('');
+  if (!text) throw new Error('La IA no devolvió texto.');
+  return text.slice(0, MAX_AI_OUTPUT_CHARS);
 }
 
 /* Lista los archivos de la carpeta (opcional: filtra por prefijo). */
