@@ -1034,6 +1034,27 @@ function rdSnd(n){ try{ if(localStorage.getItem('lm_ruta_muted')==='1') return; 
   else if(n==='win'){ [523,659,784,1047,784,1047,1319].forEach((f,i)=>rdTone(f,i*.11,.17,'triangle',.2)); }
   else if(n==='click'){ rdTone(700,0,.05,'sine',.07); } }
 function rdMood(v){ const m=document.querySelector('#rdMood'); if(m) m.src='src/img/mascota-'+v+'.png?v=2'; }
+/* Si una imagen no carga (p. ej. falta la carpeta src/ en el despliegue), muestra un emoji en su lugar y nunca un icono roto. */
+let _rdPreloaded=false;
+function rdPreloadMoods(){ if(_rdPreloaded) return; _rdPreloaded=true; try{ ['mascota','mascota-pensando','mascota-feliz','mascota-animo','mascota-trofeo'].forEach(n=>{ const i=new Image(); i.src='src/img/'+n+'.png?v=2'; }); }catch(e){} }
+function rdImgFail(el){ try{ const s=document.createElement('span'); s.textContent='🦊'; s.setAttribute('aria-label','Mascota'); s.style.fontSize=(el&&el.className&&el.className.indexOf('rd-winimg')>=0)?'84px':'50px'; s.style.lineHeight='1.2'; el.replaceWith(s); }catch(e){ try{ el.style.display='none'; }catch(e2){} } }
+/* Esquema de UNA lección: significado + 3 prácticas + 1 evaluación final. */
+const RD_LESSON_SCHEMA='Ejemplo de formato (usa EXACTAMENTE estas claves en inglés): {"title":"El Loco","card":{"name":"El Loco","upright":"significado al derecho en 1-2 frases (p.X)","reversed":"significado invertida en 1-2 frases (p.X)"},"practice":[{"type":"choice","q":"¿...?","options":["A","B","C","D"],"answer":1,"explain":"por qué (p.X)"},{"type":"order","q":"Ordena: ...","words":["El","sensor","registra"],"explain":"por qué"},{"type":"blank","q":"El dato nace cuando un ___ es registrado.","answers":["evento"],"hint":"pista","explain":"por qué"}],"quiz":[{"type":"choice","q":"pregunta final de evaluación, distinta a las de práctica","options":["A","B","C","D"],"answer":0,"explain":"por qué (p.X)"}]} (Si el material NO es de Tarot, en vez de "card" usa "teach":{"concept":"...","explanation":"explicación breve en 2-3 frases"})';
+/* Genera UNA lección con la IA (reutilizable: ruta inicial y avance infinito). */
+async function askRutaLesson(m,btn,num,li,focus,grab,tag){
+  let lesson=null,lastErr='La IA no devolvió la lección.';
+  for(let a=0;a<3&&!lesson;a++){
+    if(btn) btn.textContent='⏳ '+tag+' (intento '+(a+1)+'/3)';
+    try{
+      const txt=await lmGenerateText({ instruction: basePrompt(m)+'\nTAREA: Genera UNA LECCIÓN de una RUTA DE APRENDIZAJE estilo Duolingo en español basada SOLO en el material. Enseña UNA sola carta o concepto. Enfócate en: '+focus+' Devuelve SOLO JSON válido, sin markdown ni texto extra, con este esquema exacto: '+RD_LESSON_SCHEMA+' Reglas: "practice" exactamente 3 ejercicios (choice, order y blank, en ese orden); "quiz" exactamente 1 pregunta choice de evaluación final, distinta a las de práctica. Significados de 1-2 frases con citas (p.X). Explicaciones de máximo 12 palabras.' });
+      const o=extractJSON(txt.text||String(txt));
+      lesson=rdNormLessonFlex(o,num,li);
+      if(lesson&&grab) grab(o,lesson);
+    }catch(e){ console.error(e); lastErr=String(e.message||e); }
+  }
+  if(!lesson) throw new Error(lastErr);
+  return lesson;
+}
 const RutaDuo = {
   KEY:'lm_ruta_v1', route:null, st:null, session:null,
   load(){ try{ const s=JSON.parse(localStorage.getItem(this.KEY)||'null');
@@ -1043,42 +1064,38 @@ const RutaDuo = {
     this.st={xp:0,streak:{n:0,last:''},done:{}}; },
   save(){ try{ localStorage.setItem(this.KEY,JSON.stringify({route:this.route,xp:this.st.xp,streak:this.st.streak,done:this.st.done})); }catch(e){} },
   flat(){ const a=[]; this.route.units.forEach((u,ui)=>u.lessons.forEach(l=>a.push({unit:u.title,lesson:l}))); return a; },
-  status(id){ const f=this.flat(); const i=f.findIndex(x=>x.lesson.id===id);
-    if(this.st.done[id]) return 'done';
-    if(i===0||(i>0&&this.st.done[f[i-1].lesson.id])) return 'current';
-    return 'locked'; },
+  status(id){ return this.st.done[id]?'done':'current'; },
   currentId(){ const f=this.flat(); const nx=f.find(x=>!this.st.done[x.lesson.id]); return nx?nx.lesson.id:f[f.length-1].lesson.id; },
   totalXpEarned(){ return this.st.xp; },
   renderHead(){
     const f=this.flat(); const doneN=f.filter(x=>this.st.done[x.lesson.id]).length;
     const cur=f.find(x=>!this.st.done[x.lesson.id]);
-    $('#rdCap').textContent = cur ? cur.unit.split('·')[0].trim().toUpperCase() : 'RUTA COMPLETADA 🎉';
+    $('#rdCap').textContent = cur ? cur.unit.split('·')[0].trim().toUpperCase() : 'SIGUE AVANZANDO 🚀';
     $('#rdTitle').textContent = cur ? cur.unit.split('·').slice(1).join('·').trim()||cur.unit : this.route.title;
     $('#rdXp').textContent = '⭐ '+this.st.xp+' XP';
     $('#rdStreak').textContent = '🔥 Racha: '+this.st.streak.n+' día'+(this.st.streak.n===1?'':'s');
     $('#rdBar').style.width = Math.round(doneN/f.length*100)+'%';
   },
   renderPath(){
-    const offs=[-90,-45,0,45,90,45,0,-45]; let g=0; let html='';
+    rdPreloadMoods();
+    const offs=[-90,-45,0,45,90,45,0,-45]; let g=0; let html=''; const nextId=this.currentId();
     this.route.units.forEach(u=>{
       html += '<div class="rd-uwrap"><span class="rd-uchip">'+escapeHtml(u.title)+'</span></div>';
       u.lessons.forEach(l=>{
         const st=this.status(l.id); const rec=this.st.done[l.id];
         const stars = rec ? rec.stars : 0;
         const starHtml = '<span class="rd-stars">'+[0,1,2].map(i=>'<span class="'+(i<stars?'on':'off')+'">★</span>').join('')+'</span>';
-        const icon = st==='locked' ? '🔒' : '📖';
-        const bub = st==='current' ? '<span class="rd-bubble">¡EMPIEZA AQUÍ! ⬇</span>' : '';
-        html += '<div class="rd-row'+(st==='locked'?' lockedrow':'')+(st==='current'?' hasbub':'')+'" style="transform:translateX('+offs[g%offs.length]+'px)">'+
+        const icon = '📖';
+        const bub = (!rec && l.id===nextId) ? '<span class="rd-bubble">¡EMPIEZA AQUÍ! ⬇</span>' : '';
+        html += '<div class="rd-row'+(!rec&&l.id===nextId?' hasbub':'')+'" style="transform:translateX('+offs[g%offs.length]+'px)">'+
           '<span class="rd-nwrap">'+bub+'<button class="rd-node '+st+'" data-lid="'+l.id+'" title="'+escapeHtml(l.title)+'">'+icon+'</button></span>'+
           '<div class="rd-meta">'+starHtml+'<span class="rd-label">'+escapeHtml(l.title)+'</span></div></div>';
         g++;
       });
-      html += '<div class="rd-mascot"><img src="src/img/mascota.png?v=2" alt="Mascota"><small>¡Sigue así, cada lección cuenta!</small></div>';
+      html += '<div class="rd-mascot"><img src="src/img/mascota.png?v=2" alt="Mascota" onerror="rdImgFail(this)"><small>¡Sigue así, cada lección cuenta!</small></div>';
     });
     $('#rdPath').innerHTML = html;
-    $$('#rdPath .rd-node').forEach(b=>b.onclick=()=>{ const st=this.status(b.dataset.lid);
-      if(st==='locked'){ toast('🔒 Completa la lección anterior para desbloquear esta.'); return; }
-      this.openLesson(b.dataset.lid); });
+    $$('#rdPath .rd-node').forEach(b=>b.onclick=()=>this.openLesson(b.dataset.lid));
     this.renderHead();
   },
   openLesson(id){
@@ -1102,7 +1119,7 @@ const RutaDuo = {
       inner+='<div class="rd-answer" id="rdAns"><span class="micro">Toca las palabras en orden…</span></div><div class="rd-bank" id="rdBank">'+sh.map(w=>'<button class="rd-chip" data-w="'+escapeHtml(w)+'">'+escapeHtml(w)+'</button>').join('')+'</div>'; }
     if(ex.type==='blank'){ const parts=String(ex.q).split('___');
       inner='<div class="rd-q">'+escapeHtml(parts[0])+'<span style="color:var(--blue)">___</span>'+escapeHtml(parts.slice(1).join('___'))+'</div><input id="rdBlank" placeholder="Escribe tu respuesta…" autocomplete="off">'+(ex.hint?'<div class="rd-hint">💡 '+escapeHtml(ex.hint)+'</div>':''); }
-    $('#rdBody').innerHTML='<img id="rdMood" class="rd-mood" src="src/img/mascota-pensando.png?v=2" alt="Mascota pensando">'+inner;
+    $('#rdBody').innerHTML='<img id="rdMood" class="rd-mood" src="src/img/mascota-pensando.png?v=2" alt="Mascota pensando" onerror="rdImgFail(this)">'+inner;
     $('#rdFeed').className='rd-feed'; $('#rdFeed').innerHTML='';
     const chk=$('#rdCheck'); chk.style.display=''; chk.textContent='Comprobar'; chk.onclick=()=>this.check();
     if(ex.type==='choice') $$('#rdOpts .rd-opt').forEach(b=>b.onclick=()=>{ if(s.mode!=='check')return; s.sel=+b.dataset.i; $$('#rdOpts .rd-opt').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); rdSnd('click'); });
@@ -1116,7 +1133,7 @@ const RutaDuo = {
     let card='';
     if(L.kind==='card') card='<div class="rd-teach"><h4>🔮 '+escapeHtml(L.name||ex.q||'')+'</h4><div class="rd-side up"><b>🟢 Al derecho</b><p>'+escapeHtml(L.upright||'')+'</p></div><div class="rd-side down"><b>🔴 Invertida</b><p>'+escapeHtml(L.reversed||'')+'</p></div></div>';
     else card='<div class="rd-teach"><h4>📖 '+escapeHtml(L.concept||ex.q||'')+'</h4>'+(L.explanation?'<div class="rd-side up"><b>💡 Idea clave</b><p>'+escapeHtml(L.explanation)+'</p></div>':'')+'</div>';
-    $('#rdBody').innerHTML='<img id="rdMood" class="rd-mood" src="src/img/mascota-pensando.png?v=2" alt="Mascota pensando"><div class="rd-q">'+escapeHtml(ex.q||'')+'</div><span class="rd-phase learn">📖 PASO 1 · APRENDE</span>'+card+'<div class="micro">Lee con calma 👀 Después vienen los ejercicios de práctica y una evaluación final.</div>';
+    $('#rdBody').innerHTML='<img id="rdMood" class="rd-mood" src="src/img/mascota-pensando.png?v=2" alt="Mascota pensando" onerror="rdImgFail(this)"><div class="rd-q">'+escapeHtml(ex.q||'')+'</div><span class="rd-phase learn">📖 PASO 1 · APRENDE</span>'+card+'<div class="micro">Lee con calma 👀 Después vienen los ejercicios de práctica y una evaluación final.</div>';
     $('#rdFeed').className='rd-feed'; $('#rdFeed').innerHTML='';
     const chk=$('#rdCheck'); chk.style.display=''; chk.textContent='¡Entendido! A practicar →'; chk.onclick=()=>{ rdSnd('click'); this.next(); };
   },
@@ -1169,15 +1186,33 @@ const RutaDuo = {
       this.st.streak={n:(this.st.streak.last===y?(this.st.streak.n||0)+1:1),last:today}; }
     this.save(); s.over=true; rdSnd('win');
     const t=this.fmtTime(Date.now()-s.t0);
-    $('#rdBody').innerHTML='<div class="rd-res"><img class="rd-winimg" src="src/img/mascota-trofeo.png?v=2" alt="¡Victoria!"><h3>¡Lección completada!</h3><div style="font-size:15px;color:#f5a623;font-weight:800;letter-spacing:2px">'+'★'.repeat(stars)+'<span style="color:#d5dae3">'+'★'.repeat(3-stars)+'</span></div><div class="rd-resgrid"><div><b>+'+gained+' XP</b><span>Experiencia</span></div><div><b>'+Math.round(acc*100)+'%</b><span>Precisión</span></div><div><b>'+t+'</b><span>Tiempo</span></div></div><div class="micro">❤️ Corazones ilimitados · 🔥 Racha: '+this.st.streak.n+' día(s)</div><div class="rd-btnrow"><button class="btn btn-ghost" id="rdAgain">↻ Repetir</button><button class="btn btn-primary" id="rdNext">Continuar →</button></div></div>';
+    $('#rdBody').innerHTML='<div class="rd-res"><img class="rd-winimg" src="src/img/mascota-trofeo.png?v=2" alt="¡Victoria!" onerror="rdImgFail(this)"><h3>¡Lección completada!</h3><div style="font-size:15px;color:#f5a623;font-weight:800;letter-spacing:2px">'+'★'.repeat(stars)+'<span style="color:#d5dae3">'+'★'.repeat(3-stars)+'</span></div><div class="rd-resgrid"><div><b>+'+gained+' XP</b><span>Experiencia</span></div><div><b>'+Math.round(acc*100)+'%</b><span>Precisión</span></div><div><b>'+t+'</b><span>Tiempo</span></div></div><div class="micro">❤️ Corazones ilimitados · 🔥 Racha: '+this.st.streak.n+' día(s)</div><div class="rd-btnrow"><button class="btn btn-ghost" id="rdAgain">↻ Repetir</button><button class="btn btn-primary" id="rdNext">Continuar →</button></div></div>';
     $('#rdCheck').style.display='none';
     this.updTop(); this.renderHead(); this.renderPath();
     $('#rdAgain').onclick=()=>this.openLesson(s.lesson.id);
-    $('#rdNext').onclick=()=>{ this.closeLesson(); document.querySelector('#ruta .rd-wrap').scrollIntoView({behavior:'smooth'}); toast('¡+'+gained+' XP! Siguiente lección desbloqueada 🚀'); };
+    const nx=this.flat().find(x=>!this.st.done[x.lesson.id]);
+    if(nx){ $('#rdNext').textContent='Continuar →'; $('#rdNext').onclick=()=>{ toast('¡+'+gained+' XP! 🚀'); this.openLesson(nx.id); }; }
+    else{ $('#rdNext').textContent='Seguir avanzando →'; $('#rdNext').onclick=()=>this.continueEndless(); }
+  },
+  async continueEndless(){
+    const m=(typeof needMaterial==='function')?needMaterial():null; if(!m) return;
+    const btn=$('#rdNext'); if(btn){ btn.disabled=true; btn.textContent='⏳ Creando tu siguiente carta…'; }
+    try{
+      const used=this.flat().map(x=>x.lesson.title);
+      const num=this.route.units.length;
+      const lastU=this.route.units[this.route.units.length-1];
+      const li=lastU.lessons.length;
+      const f='el siguiente tema o carta que aún no se ha enseñado: repasa todo el material y elige algo NUEVO que aporte valor. Ya enseñaste: '+used.map(t=>'"'+t+'"').join(', ')+'. Elige OTRA carta o concepto DIFERENTE a esos.';
+      const l=await askRutaLesson(m,null,num,li,f,null,'Creando tu siguiente carta…');
+      lastU.lessons.push(l);
+      this.save(); this.renderPath();
+      toast('✨ Nueva carta desbloqueada: '+l.title);
+      this.openLesson(l.id);
+    }catch(e){ console.error(e); toast('⚠️ No se pudo crear la siguiente carta: '+String(e.message||e).slice(0,120)); if(btn){ btn.disabled=false; btn.textContent='Seguir avanzando →'; } }
   },
   fail(){
     const s=this.session; s.over=true;
-    $('#rdBody').innerHTML='<div class="rd-res"><img class="rd-winimg" src="src/img/mascota-animo.png?v=2" alt="¡Ánimo!"><h3>¡Sin corazones!</h3><p style="color:#667085">Repasa el material e inténtalo de nuevo. Los errores también enseñan.</p><div class="rd-btnrow"><button class="btn btn-ghost" id="rdExit">Salir</button><button class="btn btn-primary" id="rdRetry">↻ Reintentar lección</button></div></div>';
+    $('#rdBody').innerHTML='<div class="rd-res"><img class="rd-winimg" src="src/img/mascota-animo.png?v=2" alt="¡Ánimo!" onerror="rdImgFail(this)"><h3>¡Sin corazones!</h3><p style="color:#667085">Repasa el material e inténtalo de nuevo. Los errores también enseñan.</p><div class="rd-btnrow"><button class="btn btn-ghost" id="rdExit">Salir</button><button class="btn btn-primary" id="rdRetry">↻ Reintentar lección</button></div></div>';
     $('#rdCheck').style.display='none';
     $('#rdExit').onclick=()=>this.closeLesson();
     $('#rdRetry').onclick=()=>this.openLesson(s.lesson.id);
@@ -1214,21 +1249,7 @@ const RutaDuo = {
   async genFromMaterial(){
     const m=(typeof needMaterial==='function')?needMaterial():null; if(!m) return;
     const btn=$('#rdGenBtn'); btn.disabled=true; const old=btn.textContent;
-    const askLesson=async(num,li,focus,grab)=>{
-      let lesson=null,lastErr='La IA no devolvió la carta '+(li+1)+' de la unidad '+num+'.';
-      const schema='Ejemplo de formato (usa EXACTAMENTE estas claves en inglés): {"title":"El Loco","card":{"name":"El Loco","upright":"significado al derecho en 1-2 frases (p.X)","reversed":"significado invertida en 1-2 frases (p.X)"},"practice":[{"type":"choice","q":"¿...?","options":["A","B","C","D"],"answer":1,"explain":"por qué (p.X)"},{"type":"order","q":"Ordena: ...","words":["El","sensor","registra"],"explain":"por qué"},{"type":"blank","q":"El dato nace cuando un ___ es registrado.","answers":["evento"],"hint":"pista","explain":"por qué"}],"quiz":[{"type":"choice","q":"pregunta final de evaluación, distinta a las de práctica","options":["A","B","C","D"],"answer":0,"explain":"por qué (p.X)"}]} (Si el material NO es de Tarot, en vez de "card" usa "teach":{"concept":"...","explanation":"explicación breve en 2-3 frases"})';
-      for(let a=0;a<3&&!lesson;a++){
-        btn.textContent='⏳ Creando tu ruta… (unidad '+num+', carta '+(li+1)+'/3, intento '+(a+1)+'/3)';
-        try{
-          const txt=await lmGenerateText({ instruction: basePrompt(m)+'\nTAREA: Genera UNA LECCIÓN de una RUTA DE APRENDIZAJE estilo Duolingo en español basada SOLO en el material. Enseña UNA sola carta o concepto. Enfócate en: '+focus+' Devuelve SOLO JSON válido, sin markdown ni texto extra, con este esquema exacto: '+schema+' Reglas: "practice" exactamente 3 ejercicios (choice, order y blank, en ese orden); "quiz" exactamente 1 pregunta choice de evaluación final, distinta a las de práctica. Significados de 1-2 frases con citas (p.X). Explicaciones de máximo 12 palabras.' });
-          const o=extractJSON(txt.text||String(txt));
-          lesson=rdNormLessonFlex(o,num,li);
-          if(lesson&&grab) grab(o,lesson);
-        }catch(e){ console.error(e); lastErr=String(e.message||e); }
-      }
-      if(!lesson) throw new Error(lastErr);
-      return lesson;
-    };
+    const askLesson=async(num,li,focus,grab)=>askRutaLesson(m,btn,num,li,focus,grab,'Creando tu ruta… (unidad '+num+', carta '+(li+1)+'/3)');
     const buildUnit=async(num,focus,unitFallback,avoid)=>{
       const lessons=[]; const used=[].concat(avoid||[]); let unitTitle='';
       for(let li=0;li<3;li++){
